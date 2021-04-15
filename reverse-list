@@ -1,0 +1,76 @@
+#include <stdio.h>
+struct Node 
+{
+    int data;
+    struct Node *prox;
+};
+
+void inverter(struct Node** head)
+{
+    struct Node* ant = NULL;
+    struct Node* atual = *head;
+    struct Node* prox;
+    while(atual != NULL)
+    {
+        prox = atual->prox;
+        atual->prox = ant;
+        ant = atual;
+        atual = prox;
+    }
+    *head = ant;
+}
+struct node *add(struct Node *head, int num)
+{
+    struct Node *aux = head;
+    struct Node *novo = (struct Node *)malloc(sizeof(struct Node));
+
+    if (head == NULL)
+    {
+        novo->data = num;
+        novo->prox = NULL;
+        return novo;
+    }
+
+    else
+    {
+        while (aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+
+        novo->data = num;
+        novo->prox = NULL;
+
+        aux->prox = novo;
+        return head;
+    }
+}
+
+void printar(struct Node *head)
+{
+    while (head != NULL)
+    {
+        if (head->prox == NULL)
+        {
+            printf("%d\n", head->data);
+        }
+        else
+        {
+            printf("%d ", head->data);
+        }
+        head = head->prox;
+    }
+}
+
+int main()
+{
+    struct Node *head = NULL;
+    int num;
+    while (scanf("%d", &num) != EOF)
+    {
+        head = add(head, num);
+    }
+    inverter(&head);
+    printar(head);
+    return 0;
+}
