@@ -1,0 +1,256 @@
+#include <stdio.h>
+#include <malloc.h>
+
+struct NODE
+{
+    int data;
+    struct NODE *prox;
+};
+
+struct grafo
+{
+    int num;
+    struct acessados *arr;
+};
+
+struct fila
+{
+    struct NODE *head;
+};
+
+struct acessados
+{
+    struct NODE *head;
+    int ant;
+    int dis;
+};
+
+struct grafo *create_grafo(int grafos)
+{
+    int i;
+    struct grafo *novo = (struct grafo *)malloc(sizeof(struct grafo));
+    novo->num = grafos;
+    novo->arr = (struct acessados *)malloc(grafos * sizeof(struct acessados));
+    for (i = 0; i < grafos; i++)
+    {
+        novo->arr[i].head = NULL;
+        novo->arr[i].ant = -1;
+        novo->arr[i].dis = -1;
+    }
+    return novo;
+}
+
+struct fila *create_fila()
+{
+    struct fila *novo = (struct fila *)malloc(sizeof(struct fila));
+    novo->head = NULL;
+    return novo;
+}
+
+void organizar(struct grafo *lista, int posIni, int posFim)
+{
+    struct NODE *novo = (struct NODE *)malloc(sizeof(struct NODE));
+    novo->data = posFim;
+    if (lista->arr[posIni].head == NULL || lista->arr[posIni].head->data > posFim)
+    {
+        novo->prox = lista->arr[posIni].head;
+        lista->arr[posIni].head = novo;
+    }
+    else
+    {
+        struct NODE *aux = lista->arr[posIni].head;
+        while (aux->prox != NULL && aux->prox->data < posFim)
+        {
+            aux = aux->prox;
+        }
+        novo->prox = aux->prox;
+        aux->prox = novo;
+    }
+}
+
+void setar(int visitados[], struct grafo *lista)
+{
+    int i;
+    for (i = 0; i < lista->num; i++)
+    {
+        visitados[i] = 0;
+        lista->arr[i].ant = -1;
+        lista->arr[i].dis = -1;
+    }
+}
+
+int isEmpty(struct fila *fila)
+{
+    if (fila->head == NULL)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+void ordenar(struct fila *fila, int numero)
+{
+    struct NODE *novo = (struct NODE *)malloc(sizeof(struct NODE));
+    novo->data = numero;
+    if (fila->head == NULL)
+    {
+        novo->prox = fila->head;
+        fila->head = novo;
+    }
+
+    else
+    {
+        struct NODE *aux = fila->head;
+        while (aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+        novo->prox = NULL;
+    }
+}
+
+int retirar(struct fila *fila)
+{
+    struct NODE *aux;
+    int num;
+    if (fila->head != NULL)
+    {
+        aux = fila->head->prox;
+        num = fila->head->data;
+        free(fila->head);
+        fila->head = aux;
+        return num;
+    }
+}
+
+void busca(struct grafo *lista, int visitado[], int inicio)
+{
+    int atual;
+    struct fila *fila = create_fila();
+    ordenar(fila, inicio);
+    visitado[inicio] = 1;
+    struct NODE *aux;
+    lista->arr[inicio].ant = -1;
+    while ((isEmpty(fila) != 1))
+    {
+        atual = retirar(fila);
+        aux = lista->arr[atual].head;
+        printf("Iniciando busca em largura a partir de %d\n", atual);
+
+        while (aux != NULL)
+        {
+            if (visitado[aux->data] == 0)
+            {
+                visitado[aux->data] = 1;
+                lista->arr[aux->data].ant = atual;
+                ordenar(fila, aux->data);
+            }
+            aux = aux->prox;
+        }
+    }
+    printf("\n");
+}
+
+int verificar(struct grafo *lista, int i, int inicio)
+{
+    int anterior = lista->arr[i].ant, dis = 1;
+    while (anterior != inicio)
+    {
+        anterior = lista->arr[anterior].ant;
+        dis++;
+    }
+
+    return dis;
+}
+
+void printar(struct grafo *lista, int inicio, int final)
+{
+    int i, j;
+    int posicoes[lista->num], anterior = lista->arr[final].ant;
+    for (i = 0; i < lista->num; i++)
+    {
+        if (lista->arr[i].ant == -1 && i == inicio)
+        {
+            lista->arr[i].dis = 0;
+        }
+        else if (lista->arr[i].ant == -1)
+        {
+            lista->arr[i].dis = -1;
+        }
+        else
+        {
+            lista->arr[i].dis = verificar(lista, i, inicio);
+        }
+        printf("%d |", i);
+        if (lista->arr[i].dis != -1)
+        {
+            printf(" %d |", lista->arr[i].dis);
+        }
+        else
+        {
+            printf(" - |");
+        }
+        if (lista->arr[i].ant != -1)
+        {
+            printf(" %d\n", lista->arr[i].ant);
+        }
+        else
+        {
+            printf(" -\n");
+        }
+    }
+
+    if (lista->arr[final].dis == -1)
+    {
+        printf("\nSem caminho entre %d e %d\n\n", inicio, final);
+    }
+    else
+    {
+        i = 0;
+        posicoes[i] = final;
+        i++;
+        while (anterior != -1)
+        {
+            posicoes[i] = anterior;
+            anterior = lista->arr[anterior].ant;
+            i++;
+        }
+        printf("\nCaminho entre %d e %d: ", inicio, final);
+        for (j = i - 1; j >= 0; j--)
+        {
+            if (j - 1 < 0)
+            {
+                printf("%d\n\n", posicoes[j]);
+            }
+            else
+            {
+                printf("%d => ", posicoes[j]);
+            }
+        }
+    }
+}
+
+int main()
+{
+    int nGrafo, nArestas, casos, a, b, i, posIni, posFim;
+    scanf("%d %d %d", &nGrafo, &nArestas, &casos);
+    struct grafo *lista = create_grafo(nGrafo);
+    int visitados[nGrafo];
+    while (nArestas--)
+    {
+        scanf("%d %d", &posIni, &posFim);
+        organizar(lista, posIni, posFim);
+    }
+    for (i = 1; i <= casos; i++)
+    {
+        scanf("%d %d", &a, &b);
+        printf("--------\n\n");
+        printf("Caso de Teste #%d - BFS(%d)\n\n", i, a);
+        setar(visitados, lista);
+        busca(lista, visitados, a);
+        printar(lista, a, b);
+    }
+    printf("--------\n\n");
+    return 0;
+}
