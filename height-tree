@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <malloc.h>
+
+struct NODE
+{
+  int data;
+  int altura;
+  struct NODE *left;
+  struct NODE *right;
+};
+
+struct NODE *create_node(int data, struct NODE *left, struct NODE *right)
+{
+  struct NODE *novo = (struct NODE *)malloc(sizeof(struct NODE));
+  novo->data = data;
+  novo->altura = -1;
+  novo->left = left;
+  novo->right = right;
+  return novo;
+}
+
+struct NODE *create(char linha[], int *pos)
+{
+  struct NODE *novo = NULL;
+  while (linha[*pos] == '(')
+  {
+    *pos += 1;
+  }
+  if (linha[*pos] == ')')
+  {
+    *pos += 1;
+    return novo;
+  }
+  else
+  {
+    int num;
+    char num_string[100];
+    int i = 0;
+    while (linha[*pos] != '(')
+    {
+      num_string[i] = linha[*pos];
+      i++;
+      *pos += 1;
+    }
+    num_string[i] = '\0';
+    num = atoi(num_string);
+    novo = create_node(num, NULL, NULL);
+    novo->left = create(linha, pos);
+    novo->right = create(linha, pos);
+  }
+
+  *pos += 1;
+  return novo;
+}
+
+void acharAltura(struct NODE *aux, int altura)
+{
+  if (aux == NULL)
+  {
+    return;
+  }
+
+  aux->altura = altura;
+
+  if (aux->left != NULL)
+  {
+    acharAltura(aux->left, altura + 1);
+  }
+
+  if (aux->right != NULL)
+  {
+    acharAltura(aux->right, altura + 1);
+  }
+}
+
+void checar(struct NODE *aux, int n, int *flag)
+{
+  if (aux->data == n)
+  {
+    printf("ESTA NA ARVORE\n%d\n", aux->altura);
+    *flag = 1;
+  }
+  if (aux->left != NULL)
+  {
+    checar(aux->left, n, flag);
+  }
+  if (aux->right != NULL)
+  {
+    checar(aux->right, n, flag);
+  }
+}
+
+int main()
+{
+  struct NODE *raiz = NULL;
+  int posicao = 0, n;
+  char linha[1000];
+  scanf("%[^\n]", linha);
+  raiz = create(linha, &posicao);
+  struct NODE *aux = raiz;
+  acharAltura(aux, 0);
+  scanf("%d", &n);
+  int flag = 0;
+  checar(raiz, n, &flag);
+  if (flag == 0)
+  {
+    printf("NAO ESTA NA ARVORE\n-1\n");
+  }
+  return 0;
+}
