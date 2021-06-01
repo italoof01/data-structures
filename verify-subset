@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node
+{
+    int data;
+    struct Node *prox;
+} Node;
+
+Node *add(Node *head, int num)
+{
+    Node *aux = head;
+    Node *novo = (Node *)malloc(sizeof(Node));
+
+    if (head == NULL)
+    {
+        novo->data = num;
+        novo->prox = NULL;
+        return novo;
+    }
+
+    else
+    {
+        while (aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+
+        novo->data = num;
+        novo->prox = NULL;
+
+        aux->prox = novo;
+        return head;
+    }
+}
+
+void conjunto(Node *pri, Node *seg, int total)
+{
+    int cont = 0;
+    Node *aux = seg;
+    while (pri != NULL)
+    {
+        seg = aux;
+        while (seg != NULL)
+        {
+            if(pri->data == seg->data){
+                cont++;
+                //printf("%d\n", cont);
+                break;
+            }
+            //printf("pri: %d seg: %d\n", pri->data, seg->data);
+            seg = seg->prox;
+        }
+        pri = pri->prox;
+    }
+    if (cont >= total)
+    {
+        printf("1", cont);
+    } 
+    else
+    {
+        printf("0", cont);
+    }
+}
+
+void CreSort(Node *head)
+{
+    int aux = 0;
+    Node *atual = head;
+    Node *prox = atual->prox;
+    Node *b = prox;
+    while (atual != NULL)
+    {
+        prox = atual->prox;
+        while (prox != NULL)
+        {
+            if (atual->data > prox->data)
+            {
+                aux = prox->data;
+                prox->data = atual->data;
+                atual->data = aux;
+            }
+            prox = prox->prox;
+        }
+        atual = atual->prox;
+    }
+}
+
+int main()
+{
+    Node *pri = NULL;
+    Node *seg = NULL;
+    int num, i = 0, cont = 0, j = 0, k = 0;
+    scanf("%d", &j);
+    for (i = 0; i < j; i++)
+    {
+        scanf("%d", &num);
+        pri = add(pri, num);
+    }
+    scanf("%d", &k);
+    for (i = 0; i < k; i++)
+    {
+        scanf("%d", &num);
+        seg = add(seg, num);
+    }
+    //ter = add(ter, -1);
+    CreSort(pri);
+    CreSort(seg);
+    if (k <= j)
+    {
+        conjunto(pri, seg, k);
+    } 
+    else if (k > j)
+    { 
+          printf("0");
+    }
+    //inter(pri, seg, ter);
+    return 0;
+}
