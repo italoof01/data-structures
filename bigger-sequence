@@ -1,0 +1,167 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Node
+{
+  char dado;
+  struct Node *prox;
+  int pos;
+}; typedef struct Node Node;
+
+Node *sequencia(Node *head, Node *prev, int end, int start, int end2, int start2, int tam, int aux)
+{
+  if (head == NULL)
+  {
+    if (start2 == -1 && prev->pos == '0')
+    {
+      printf("%d %d\n", prev->pos, prev->pos);
+    }
+    else if (start2 == -1 || end2 == -1)
+    {
+      printf("0 0\n");
+    }
+    else
+    {
+      printf("%d %d\n", start2, end2);
+    }
+
+    return 0;
+  }
+
+  if (head->pos == 0 && head->dado == '1')
+  {
+    return sequencia(head->prox, head, end, start, end2, start2, tam, 0);
+  }
+
+  if (head->pos == 0)
+  {
+    if (head->dado == '0')
+    {
+      start = head->pos;
+    }
+  }
+  else if ((prev == NULL || head->prox == NULL) && (head->dado == '0' && prev == '1'))
+  {
+    start = head->pos;
+    end = head->pos;
+  }
+  else if (head->dado == '0' && prev->dado != '0')
+  {
+    start = head->pos;
+  }
+
+  if ((head->dado != '0' && prev->dado == '0') || (head->prox == NULL && head->dado == '0'))
+  {
+    if (head->prox == NULL && head->dado == '0')
+    {
+      end = head->pos;
+    }
+    else
+    {
+      end = prev->pos;
+    }
+
+    aux = abs(end - start);
+
+    if (start2 != -1 && end2 != -1)
+    {
+      tam = abs(end2 - start2);
+    }
+
+    if (tam < aux)
+    {
+      return sequencia(head->prox, head, 0, 0, end, start, tam, 0);
+    }
+  }
+
+  sequencia(head->prox, head, end, start, end2, start2, tam, 0);
+}
+
+Node *add(Node *head, char data, int pos)
+{
+  Node *current = head;
+
+  if (head == NULL)
+  {
+    Node *novo = (Node *)malloc(sizeof(Node));
+    novo->dado = data;
+    novo->pos = pos;
+    novo->prox = NULL;
+
+    return novo;
+  }
+  while (current->prox != NULL)
+  {
+    current = current->prox;
+  }
+
+  Node *novo = (Node *)malloc(sizeof(Node));
+  novo->dado = data;
+  novo->pos = pos;
+  novo->prox = NULL;
+  current->prox = novo;
+
+  return head;
+}
+
+Node *remover(Node *head, char element)
+{
+  Node *previous = NULL;
+  Node *current = head;
+
+  while (current != NULL && current->dado != element)
+  {
+    previous = current;
+    current = current->prox;
+  }
+
+  if (current == NULL)
+  {
+    return head;
+  }
+
+  if (previous == NULL)
+  {
+    head = current->prox;
+  }
+  else
+  {
+    previous->prox = current->prox;
+  }
+
+  free(current);
+  return head;
+}
+
+int main() { 
+	Node* head;
+	char n[100000];
+	int i = 0;
+
+	while(1)
+	{
+	  head = NULL;
+		scanf("%s", &n);
+		int tam = strlen(n);
+
+		if(tam == 1 && n[0] == '0')
+		{
+			break;
+		}
+		
+		for(i = 0; i < tam; i++)
+		{
+			head = add(head, n[i], i);    
+		}
+		
+		sequencia(head, NULL, -1, -1, -1, -1, -1, -1);
+	}
+	
+	if(head == NULL)
+	{
+	  return 0;
+	}
+
+	return 0;
+}
