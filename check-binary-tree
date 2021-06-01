@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct tree tree;
+
+struct tree
+{
+    int num;
+    int height;
+    tree *left, *right;
+};
+
+int is_empty(tree *bt)
+{
+    return bt == NULL;
+}
+
+tree *create_binary_tree(int item, tree *left, tree *right)
+{
+    tree *bt = (tree *)malloc(sizeof(tree));
+    bt->num = item;
+    bt->left = bt->right = NULL;
+    return bt;
+}
+
+tree *construct_binary_tree(char *Str, int *pos)
+{
+
+    tree *bt = NULL;
+    int i = 0;
+    int nInt;      
+    char nStr[50]; 
+
+    while (Str[*pos] == '(')
+    { 
+        *pos += 1;
+    }
+
+    if (Str[*pos] == ')')
+    {              
+        *pos += 1;
+        return bt;
+    }
+    else
+    {
+        while (Str[*pos] != '(')
+        {                            
+            nStr[i++] = Str[*pos]; 
+            *pos += 1;
+        }
+        nStr[i] = '\0';      
+        nInt = atoi(nStr); 
+        bt = create_binary_tree(nInt, NULL, NULL); 
+        bt->left = construct_binary_tree(Str, pos);  
+        bt->right = construct_binary_tree(Str, pos); 
+    }
+    *pos += 1;
+    return bt; //retorna o ponteiro para a arvore
+}
+
+tree *verificar(tree *bt, int *flag)
+{
+    if (bt == NULL)
+    {
+        return bt;
+    }
+    if (bt->left != NULL)
+    {
+        if (bt->num < bt->left->num)
+        {
+            *flag = 1;
+        }
+    }
+    verificar(bt->left, flag);
+    if (bt->right != NULL)
+    {
+        if (bt->num > bt->right->num)
+        {
+            *flag = 1;
+        }
+    }
+    verificar(bt->right, flag);
+}
+
+int main()
+{
+    int pos = 0;
+    int flag = 0;
+    char Str[100];
+    tree *bt = NULL;
+    scanf("%[^\n]", Str);
+    int size = strlen(Str);
+    bt = construct_binary_tree(Str, &pos);
+    verificar(bt, &flag);
+    if (flag == 1)
+    {
+        printf("FALSO\n");
+    }
+    else
+    {
+        printf("VERDADEIRO\n");
+    }
+    return 0;
+}
