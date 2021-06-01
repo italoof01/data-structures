@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct hTable
+{
+  char frase[55];
+};
+
+
+struct hTable *create_hashTable(int size)
+{
+  struct hTable *hashTable = (struct hTable *)malloc(sizeof(struct hTable));
+  for (int i = 0; i < size; i++)
+  {
+    hashTable->frase[i] = NULL;
+  }
+  return hashTable;
+}
+
+int main()
+{
+  int casos, i, linhas, tamanho, j, soma = 0, conversao = 0, aux = 0;
+  scanf("%d", &casos);
+  for (i = 0; i < casos; i++)
+  {
+    scanf("%d", &linhas);
+    soma = 0;
+    aux = 0;
+    while (linhas > 0)
+    {
+      char frase[55];
+      struct hTable *hash = create_hashTable(55);
+      scanf(" %[^\n]", &hash->frase);
+      tamanho = strlen(hash->frase);
+      for (j = 0; j < tamanho; j++)
+      {
+        conversao = ((int)hash->frase[j] - 65);
+        //printf("%d\n", conversao);
+        soma += conversao;
+        soma += j;
+        soma += aux;
+      }
+      aux++;
+      linhas--;
+    }
+    printf("%d\n", soma);
+  }
+  return 0;
+}
