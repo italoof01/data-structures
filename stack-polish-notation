@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct _stack STACK;
+
+typedef struct _node NODE;
+
+struct _stack
+{
+    NODE* head;
+};
+struct _node
+{
+    int element;
+    NODE* next;
+};
+
+STACK* Create_stack();
+
+NODE* create_node(int element);
+
+int IS_EMPTY(STACK* stack);
+
+int POP(STACK* stack);
+
+void PUSH(STACK* stack, int element);
+
+void result(STACK* stack, char operation);
+
+void Calculadora(STACK* calculadora, int size);
+
+int main()
+{
+    STACK* calculadora = Create_stack();
+    int k;
+    scanf("%d", &k);
+    Calculadora(calculadora, k);
+    printf("Coordenada 1: %d\n", POP(calculadora));
+    scanf("%d", &k);
+    Calculadora(calculadora, k);
+    printf("Coordenada 2: %d\n", POP(calculadora));
+
+}
+STACK* Create_stack()
+{
+    STACK* pilha = (STACK*) malloc(sizeof(STACK));
+    pilha->head = NULL;
+    return pilha;
+}
+ 
+NODE* create_node(int element)
+{
+    NODE* novo = (NODE*) malloc(sizeof(NODE));
+   novo->element = element;
+ 
+    return novo;
+}
+ 
+int IS_EMPTY(STACK* pilha)
+{
+    if(pilha->head == NULL)
+        return 1;
+    else
+    {
+      	return 0;
+    }
+}
+ 
+int POP(STACK* pilha)
+{
+    if(IS_EMPTY(pilha))
+    {
+        printf("Stack underflow.\n");
+        return -1;
+    }
+    else
+    {
+        NODE* top = pilha->head;
+        pilha->head = top->next;
+ 
+        return top->element;
+    }
+}
+ 
+void add(STACK** stack, int element)
+{
+    NODE* top = create_node(element);
+    top->next = (*stack)->head;
+    (*stack)->head =top;
+}
+ 
+void PUSH(STACK* stack, int element)
+{
+    NODE* top = create_node(element);
+    top->next = stack->head;
+    stack->head = top;
+}
+ 
+void result(STACK* stack, char operador)
+{
+    if(operador == '+')
+    {
+        int total = POP(stack) + POP(stack);
+        add(&stack, total);
+    }
+    else if(operador == '-')
+    {
+        int p1= POP(stack);
+        int p2 = POP(stack);
+        int dif = p2 - p1;
+       add(&stack, dif);
+    }
+    else if(operador == '*')
+    {
+        int multiplicacao = POP(stack) * POP(stack);
+        add(&stack, multiplicacao);
+    }
+    else if(operador == '/')
+    {
+        int p1 = POP(stack);
+        int p2 = POP(stack);
+        int divisao = p2/p1;
+        add(&stack, divisao);
+    }
+}
+ 
+void Calculadora(STACK* calc, int t)
+{
+    char caractere[10];
+    
+    for(int j = 0; j < t; j++)
+    {
+        scanf("%s", caractere);
+        
+        if(caractere[0] == '+')
+        {
+        	result(calc, '+');
+        }
+        else if(caractere[0] == '-')
+        {
+        	result(calc, '-');
+        }
+        else if(caractere[0] == '*')
+        {
+        	result(calc, '*');
+        }
+        else if(caractere[0] == '/')
+        {
+        	result(calc, '/');
+        }
+        else
+        {
+           add(&calc, atoi(caractere));
+        }
+    }
+}
