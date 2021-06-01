@@ -1,0 +1,276 @@
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
+
+struct NODE
+{
+  int data;
+  struct NODE *prox;
+};
+
+struct acessados
+{
+  struct NODE *head;
+  int tLista;
+};
+
+struct hashT
+{
+  int tam;
+  int nElementos;
+  struct acessados *pos;
+};
+
+struct hashT *create(int n)
+{
+  struct hashT *novo = (struct hashT *)malloc(sizeof(struct hashT));
+  novo->tam = n;
+  novo->nElementos = 0;
+
+  novo->pos = (struct acessados *)malloc(n * sizeof(struct hashT));
+  int i;
+  for (i = 0; i < n; i++)
+  {
+    novo->pos[i].head = NULL;
+    novo->pos[i].tLista = 0;
+  }
+  return novo;
+}
+
+void ADD(struct hashT *lista, int numero, int operacao)
+{
+  int k = numero % lista->tam;
+  struct NODE *novo = (struct NODE *)malloc(sizeof(struct NODE));
+  novo->data = numero;
+  if (lista->pos[k].head == NULL)
+  {
+    novo->prox = NULL;
+    lista->pos[k].head = novo;
+    lista->pos[k].tLista = 1;
+    printf("%d %d %d\n", operacao, 1, 0);
+    lista->nElementos++;
+  }
+  else
+  {
+    int comparacoes = 0;
+    int safe = 0;
+    int flag = 0;
+    struct NODE *aux = lista->pos[k].head;
+
+    while (aux != NULL)
+    {
+      comparacoes++;
+      if (aux->data == numero)
+      {
+        flag = 1;
+        break;
+      }
+      aux = aux->prox;
+    }
+    if (flag == 0)
+    {
+      novo->prox = lista->pos[k].head;
+      lista->pos[k].head = novo;
+      lista->pos[k].tLista++;
+      safe = 1;
+      lista->nElementos++;
+    }
+    printf("%d %d %d\n", operacao, safe, comparacoes);
+  }
+}
+
+void DEL(struct hashT *lista, int numero, int operacao)
+{
+  int k = numero % lista->tam;
+  struct NODE *aux = lista->pos[k].head;
+
+  if (aux == NULL)
+  {
+    printf("%d %d %d\n", operacao, 0, 0);
+  }
+  else if (aux->prox == NULL && aux->data != numero)
+  {
+    printf("%d %d %d\n", operacao, 0, 1);
+  }
+  else
+  {
+    struct NODE *remover;
+    if (aux->data == numero)
+    {
+      remover = aux;
+      lista->pos[k].head = aux->prox;
+      free(remover);
+      printf("%d %d %d\n", operacao, 1, 1);
+      lista->pos[k].tLista--;
+      lista->nElementos--;
+      return;
+    }
+    int achei = 0;
+    int comparacoes = 1;
+    while (aux->prox != NULL)
+    {
+      comparacoes++;
+      if (aux->prox->data == numero)
+      {
+        achei = 1;
+        break;
+      }
+      aux = aux->prox;
+    }
+    if (achei == 1)
+    {
+      remover = aux->prox;
+      aux->prox = aux->prox->prox;
+      free(remover);
+      lista->pos[k].tLista--;
+      lista->nElementos--;
+      printf("%d %d %d\n", operacao, 1, comparacoes);
+      return;
+    }
+    else
+    {
+      printf("%d %d %d\n", operacao, 0, comparacoes);
+    }
+  }
+}
+
+void HAS(struct hashT *lista, int numero, int operacao)
+{
+  int k = numero % lista->tam;
+  struct NODE *aux = lista->pos[k].head;
+  int achei = 0;
+  int comparacoes = 0;
+
+  while (aux != NULL)
+  {
+    comparacoes += 1;
+    if (aux->data == numero)
+    {
+      achei = 1;
+      break;
+    }
+    aux = aux->prox;
+  }
+  if (achei == 1)
+  {
+    printf("%d %d %d\n", operacao, 1, comparacoes);
+  }
+  else if (achei == 0)
+  {
+    printf("%d %d %d\n", operacao, 0, comparacoes);
+  }
+}
+
+void PRT(struct hashT *lista, int operacao)
+{
+  int i;
+  int maior = -1;
+
+  for (i = 0; i < lista->tam; i++)
+  {
+    if (lista->pos[i].tLista > maior)
+    {
+      maior = lista->pos[i].tLista;
+    }
+  }
+
+  printf("%d %d %d %d\n", operacao, lista->tam, lista->nElementos, maior);
+}
+
+int calcFator(struct hashT *lista)
+{
+  double elem = lista->nElementos;
+  double tamanho = lista->tam;
+  double fc = elem / tamanho;
+
+  if (fc < 0.75)
+  {
+    return 0;
+  }
+  return 1;
+}
+
+struct hashT *rehashing(struct hashT *lista)
+{
+  struct hashT *novo = create((lista->tam * 2) - 1);
+  COPY(lista, novo);
+  return novo;
+}
+
+void COPY(struct hashT *lista, struct hashT *novo)
+{
+  int i;
+  struct NODE *aux;
+  novo->nElementos = lista->nElementos;
+
+  for (i = 0; i < lista->tam; i++)
+  {
+    aux = lista->pos[i].head;
+
+    while (aux != NULL)
+    {
+      ADD_(novo, aux->data);
+      aux = aux->prox;
+    }
+  }
+  free(lista);
+}
+
+void ADD_(struct hashT *lista, int numero)
+{
+  int k = numero % lista->tam;
+  struct NODE *novo = (struct NODE *)malloc(sizeof(struct NODE));
+  novo->data = numero;
+  
+  if (lista->pos[k].head == NULL)
+  {
+    novo->prox = NULL;
+    lista->pos[k].head = novo;
+    lista->pos[k].tLista = 1;
+    return;
+  }
+  else
+  {
+    novo->prox = lista->pos[k].head;
+    lista->pos[k].head = novo;
+    lista->pos[k].tLista += 1;
+  }
+}
+
+int main()
+{
+  struct hashT *lista = create(7);
+  char operador[10];
+  int num;
+  int operacoes = 0;
+
+  while (scanf(" %s", operador) != EOF)
+  {
+    if (strcmp(operador, "ADD") == 0)
+    {
+      scanf("%d", &num);
+      ADD(lista, num, operacoes);
+      if (calcFator(lista))
+      {
+        lista = rehashing(lista);
+      }
+    }
+    if (strcmp(operador, "DEL") == 0)
+    {
+      scanf("%d", &num);
+      DEL(lista, num, operacoes);
+    }
+    if (strcmp(operador, "HAS") == 0)
+    {
+      scanf("%d", &num);
+      HAS(lista, num, operacoes);
+    }
+    if (strcmp(operador, "PRT") == 0)
+    {
+      PRT(lista, operacoes);
+    }
+
+    operacoes++;
+  }
+  return 0;
+}
