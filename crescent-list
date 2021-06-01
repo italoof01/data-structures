@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node
+{
+    int data;
+    struct Node *prox;
+} Node;
+
+void CreSort(Node *head)
+{
+    int aux = 0;
+    Node * atual = head;
+    Node * prox = atual->prox;
+    Node * b = prox;
+    while (atual != NULL)
+    {
+        prox = atual->prox;
+        while (prox != NULL)
+        {
+            if (atual->data > prox->data)
+            {
+                aux = prox->data;
+                prox->data = atual->data;
+                atual->data = aux;
+            }
+            prox = prox->prox;
+        }
+        atual = atual->prox;
+    }
+}
+
+Node * add(Node *head, int num)
+{
+        Node * aux = head;
+        Node * novo = (Node *)malloc(sizeof(Node));
+
+    if (head == NULL)
+    {
+        novo->data = num;
+        novo->prox = NULL;
+        return novo;
+    }
+
+    else
+    {
+        while (aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+
+        novo->data = num;
+        novo->prox = NULL;
+
+        aux->prox = novo;
+        return head;
+    }
+}
+
+void printar( Node *head)
+{
+    while (head != NULL)
+    {
+        if (head->prox == NULL)
+        {
+            printf("%d\n", head->data);
+        }
+        else
+        {
+            printf("%d ", head->data);
+        }
+        head = head->prox;
+    }
+}
+
+int main()
+{
+    Node *head = NULL;
+    int num;
+    while (scanf("%d", &num) != EOF)
+    {
+        head = add(head, num);
+    }
+    CreSort(head);
+    printar(head);
+    return 0;
+}
