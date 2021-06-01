@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+
+struct tree
+{
+    int data;
+    struct tree *left;
+    struct binary_tree *right;
+};
+typedef struct tree tree;
+
+tree *create_binary_tree(int item, tree *left, tree *right)
+{
+    tree *new_binary_tree = (tree *)malloc(sizeof(tree));
+
+    new_binary_tree->data = item;
+    new_binary_tree->left = left;
+    new_binary_tree->right = right;
+    return new_binary_tree;
+}
+
+void print_pre_order(tree *bt)
+{
+    printf("%d  ", bt->data);
+    if (bt->left != NULL)
+    {
+        printf("( ");
+        print_pre_order(bt->left);
+        printf(")  ");
+    }
+    else
+    {
+        printf("(");
+        printf(")  ");
+    }
+
+    if (bt->right != NULL)
+    {
+        printf("( ");
+        print_pre_order(bt->right);
+        printf(") ");
+    }
+    else
+    {
+        printf("(");
+        printf(") ");
+    }
+}
+
+tree *add(tree *arvore, int value)
+{
+    tree *novo = create_binary_tree(value, NULL, NULL);
+    if (arvore == NULL)
+    {
+        return novo;
+    }
+    search(arvore, novo, value);
+    return arvore;
+}
+
+void search(tree *bt, tree *novo, int value)
+{
+    if (bt != NULL)
+    {
+        if (value < bt->data)
+        {
+            if (bt->left == NULL)
+            {
+                bt->left = novo;
+                return;
+            }
+            search(bt->left, novo, value);
+        }
+        else
+        {
+            if (bt->right == NULL)
+            {
+                bt->right = novo;
+                return;
+            }
+            search(bt->right, novo, value);
+        }
+    }
+    return;
+}
+
+int main()
+{
+    tree *arvore = NULL;
+    int value;
+
+    while (scanf("%d", &value) != EOF)
+    {
+        arvore = add(arvore, value);
+        printf("----\n");
+        printf("Adicionando %d\n", value);
+        printf("   ");
+        printf("( ");
+
+        print_pre_order(arvore);
+        printf(") ");
+        printf("\n");
+    }
+    printf("----\n");
+}
