@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+
+struct arvore
+{
+  int data;
+  int left;
+  int right;
+};
+typedef struct arvore arvore;
+
+void printar(arvore tree[], arvore current, int altura, int *maiorAltura, int maior[], int menor[])
+{
+  altura++;
+  if (maior[altura - 1] < current.data)
+  {
+    maior[altura - 1] = current.data;
+  }
+  if (menor[altura - 1] > current.data)
+  {
+    menor[altura - 1] = current.data;
+  }
+  if (current.left != -1)
+  {
+    printar(tree, tree[current.left], altura, maiorAltura, maior, menor);
+  }
+  else
+  {
+    if (altura > *maiorAltura)
+    {
+      *maiorAltura = altura;
+    }
+  }
+  if (current.right != -1)
+  {
+    printar(tree, tree[current.right], altura, maiorAltura, maior, menor);
+  }
+  else
+  {
+    if (altura > *maiorAltura)
+    {
+      *maiorAltura = altura;
+    }
+  }
+}
+
+int main()
+{
+  int linhas, i, j, item, left, right;
+  int *maiorAltura = 0;
+  scanf("%d", &linhas);
+  arvore tree[linhas];
+  int maior[linhas], menor[linhas];
+  memset(maior, -1, sizeof(maior));
+  for (i = 0; i < linhas; i++)
+  {
+    menor[i] = 10000000;
+    tree[0].data = NULL;
+  }
+  for (i = 0; i < linhas; i++)
+  {
+    scanf("%d %d %d", &item, &left, &right);
+    tree[i].data = item;
+    tree[i].left = left;
+    tree[i].right = right;
+  }
+  printar(tree, tree[0], 0, &maiorAltura, maior, menor);
+  for (i = 0; i < maiorAltura; i++)
+  {
+    printf("Nivel %d: Maior = %d, Menor = %d\n", i + 1, maior[i], menor[i]);
+  }
+  return 0;
+}
