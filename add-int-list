@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+  char dado;
+  struct Node *prox;
+}; typedef struct Node Node;
+
+Node *add(Node *head, char data)
+{
+  Node *current = head;
+
+  if (head == NULL)
+  {
+    Node *novo = (Node *)malloc(sizeof(Node));
+    novo->dado = data;
+    novo->prox = NULL;
+    return novo;
+  }
+  while (current->prox != NULL)
+  {
+    current = current->prox;
+  }
+
+  Node *novo = (Node *)malloc(sizeof(Node));
+  novo->dado = data;
+  novo->prox = NULL;
+  current->prox = novo;
+  return head;
+}
+
+Node *remove_element(Node *head, char element)
+{
+  Node *previous = NULL;
+  Node *current = head;
+  while (current != NULL && current->dado != element)
+  {
+    previous = current;
+    current = current->prox;
+  }
+
+  if (current == NULL)
+  {
+    return head;
+  }
+
+  if (previous == NULL)
+  {
+    head = current->prox;
+  }
+  else
+  {
+    previous->prox = current->prox;
+  }
+  free(current);
+  return head;
+}
+
+Node *printar(Node *head)
+{
+  while (head != NULL)
+  {
+    printf(" %c", head->dado);
+    head = head->prox;
+  }
+  printf("\n");
+}
+
+Node *inverter(Node *head)
+{
+  Node *previus = NULL;
+  Node *current = head;
+  Node *current2 = NULL;
+
+  while (current != NULL)
+  {
+    current2 = current->prox;
+    current->prox = previus;
+    previus = current;
+    current = current2;
+  }
+
+  return previus;
+}
+
+Node *Soma(Node *head, Node *head2, int aux, int comp, Node *soma)
+{
+  if (head == NULL && head2 == NULL)
+  {
+    if (comp == 1)
+    {
+      add(soma, 1 + '0');
+    }
+    return soma;
+  }
+
+  if (head == NULL)
+  {
+    aux = (int)head2->dado - 48 + comp;
+    char dado = (aux % 10) + '0';
+    soma = add(soma, dado);
+    Soma(head, head2->prox, 0, aux / 10, soma);
+  }
+  else if (head2 == NULL)
+  {
+    aux = (int)head->dado - 48 + comp;
+    char dado = (aux % 10) + '0';
+    soma = add(soma, dado);
+    Soma(head->prox, head2, 0, aux / 10, soma);
+  }
+  else
+  {
+    aux = (int)head->dado + (int)head2->dado - 96 + comp;
+    char dado = (aux % 10) + '0';
+    soma = add(soma, dado);
+    Soma(head->prox, head2->prox, 0, aux / 10, soma);
+  }
+}
+
+int main() 
+{
+  
+  Node* head = NULL;
+  Node* head2 = NULL;
+  Node* soma = NULL;
+  char n;
+  int i = 0;
+
+  scanf(" %c", &n);
+  while(n != '+')
+  {
+    i++;
+    head = add(head, n);
+    scanf(" %c", &n);
+  }
+
+  scanf(" %c", &n);
+  while(n != '=')
+  {
+    i++;
+    head2 = add(head2, n);
+    scanf(" %c", &n);  
+  }
+    
+  if(i == 0)
+  {
+    printf("Lista vazia!");
+    return 0;
+  }
+    
+  head = inverter(head);
+  head2 = inverter(head2);
+    
+  soma = Soma(head, head2, 0, 0, soma);   
+  soma = inverter(soma);
+    
+  while(soma->dado == '0')
+  {
+    soma = remove_element(soma, '0');
+  }
+    
+  printf("%c", soma->dado); 
+  printar(soma->prox);
+  return 0;
+}
